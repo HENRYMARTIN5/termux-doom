@@ -554,46 +554,48 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                 SDL_GetError());
     }
 
-    while (*w_upscale * SCREENWIDTH > rinfo.max_texture_width)
-    {
-        --*w_upscale;
-    }
-    while (*h_upscale * SCREENHEIGHT > rinfo.max_texture_height)
-    {
-        --*h_upscale;
-    }
-
-    if ((*w_upscale < 1 && rinfo.max_texture_width > 0) ||
-        (*h_upscale < 1 && rinfo.max_texture_height > 0))
-    {
-        I_Error("CreateUpscaledTexture: Can't create a texture big enough for "
-                "the whole screen! Maximum texture size %dx%d",
-                rinfo.max_texture_width, rinfo.max_texture_height);
-    }
-
-    // We limit the amount of texture memory used for the intermediate buffer,
-    // since beyond a certain point there are diminishing returns. Also,
-    // depending on the hardware there may be performance problems with very
-    // huge textures, so the user can use this to reduce the maximum texture
-    // size if desired.
-
-    if (max_scaling_buffer_pixels < SCREENWIDTH * SCREENHEIGHT)
-    {
-        I_Error("CreateUpscaledTexture: max_scaling_buffer_pixels too small "
-                "to create a texture buffer: %d < %d",
-                max_scaling_buffer_pixels, SCREENWIDTH * SCREENHEIGHT);
-    }
-
-    while (*w_upscale * *h_upscale * SCREENWIDTH * SCREENHEIGHT
-           > max_scaling_buffer_pixels)
-    {
-        if (*w_upscale > *h_upscale)
+    if (SCREENWIDTH != 0 && SCREENHEIGHT != 0) {
+        while (*w_upscale * SCREENWIDTH > rinfo.max_texture_width)
         {
             --*w_upscale;
         }
-        else
+        while (*h_upscale * SCREENHEIGHT > rinfo.max_texture_height)
         {
             --*h_upscale;
+        }
+
+        if ((*w_upscale < 1 && rinfo.max_texture_width > 0) ||
+            (*h_upscale < 1 && rinfo.max_texture_height > 0))
+        {
+            I_Error("CreateUpscaledTexture: Can't create a texture big enough for "
+                    "the whole screen! Maximum texture size %dx%d",
+                    rinfo.max_texture_width, rinfo.max_texture_height);
+        }
+
+        // We limit the amount of texture memory used for the intermediate buffer,
+        // since beyond a certain point there are diminishing returns. Also,
+        // depending on the hardware there may be performance problems with very
+        // huge textures, so the user can use this to reduce the maximum texture
+        // size if desired.
+
+        if (max_scaling_buffer_pixels < SCREENWIDTH * SCREENHEIGHT)
+        {
+            I_Error("CreateUpscaledTexture: max_scaling_buffer_pixels too small "
+                    "to create a texture buffer: %d < %d",
+                    max_scaling_buffer_pixels, SCREENWIDTH * SCREENHEIGHT);
+        }
+
+        while (*w_upscale * *h_upscale * SCREENWIDTH * SCREENHEIGHT
+               > max_scaling_buffer_pixels)
+        {
+            if (*w_upscale > *h_upscale)
+            {
+                --*w_upscale;
+            }
+            else
+            {
+                --*h_upscale;
+            }
         }
     }
 
@@ -606,6 +608,7 @@ static void LimitTextureSize(int *w_upscale, int *h_upscale)
                rinfo.max_texture_width, rinfo.max_texture_height);
     }
 }
+
 
 static void CreateUpscaledTexture(boolean force)
 {
